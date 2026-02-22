@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Consolas", monospace;
+
+  --color-dark-950: #0a0e1a;
+  --color-dark-900: #0f1420;
+  --color-dark-800: #1a1f2e;
+  --color-dark-700: #252b3b;
+  --color-dark-600: #303749;
+
+  --color-text: #f3f4f6;
+  --color-text-secondary: #e5e7eb;
+  --color-text-dim: #9ca3af;
+  --color-text-muted: #6b7280;
+
+  --color-accent-green: #10b981;
+  --color-accent-red: #ef4444;
+  --color-accent-blue: #3b82f6;
+  --color-accent-amber: #f59e0b;
+  --color-accent-yellow: #eab308;
+  --color-accent-purple: #a855f7;
+}
+
+body {
+  background-color: var(--color-dark-950);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #303749 #1a1f2e;
+}
+
+.card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-dark-700);
+  background-color: #0f1420cc;
+  backdrop-filter: blur(4px);
+  padding: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / .1), 0 8px 10px -6px rgb(0 0 0 / .1);
+}
+
+@keyframes glow-green {
+  0% { box-shadow: 0 0 10px #10b98180, 0 0 20px #10b9814d; filter: brightness(1); }
+  100% { box-shadow: 0 0 20px #10b981cc, 0 0 40px #10b98180, 0 0 60px #10b9814d; filter: brightness(1.2); }
+}
+
+@keyframes glow-red {
+  0% { box-shadow: 0 0 10px #ef444480, 0 0 20px #ef44444d; filter: brightness(1); }
+  100% { box-shadow: 0 0 20px #ef4444cc, 0 0 40px #ef444480, 0 0 60px #ef44444d; filter: brightness(1.2); }
+}
+
+.animate-glow-green { animation: glow-green 2s ease-in-out infinite alternate; }
+.animate-glow-red { animation: glow-red 2s ease-in-out infinite alternate; }
+
+.text-glow { text-shadow: 0 0 10px currentColor; }
