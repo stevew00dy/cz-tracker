@@ -6,8 +6,6 @@ import {
   DoorOpen,
   Rocket,
   Shield,
-  Swords,
-  Map,
 } from "lucide-react";
 import {
   useHangarTimer,
@@ -17,28 +15,9 @@ import {
   useSimpleTimers,
   useSupervisorCards,
   formatTime,
-  type CompBoard,
 } from "./hooks";
 
 const ZONE_NAMES: Record<string, string> = { checkmate: "Checkmate", orbituary: "Orbituary", ruin: "Ruin Station" };
-
-function KeycardLabel({ keycard, zone }: { keycard: "red" | "blue" | "crypt" | null; zone: string }) {
-  const zoneName = ZONE_NAMES[zone] || zone;
-  if (!keycard) return (
-    <p className="text-[10px] text-text-muted leading-tight">{zoneName}</p>
-  );
-  const color = keycard === "red" ? "bg-accent-red" : keycard === "blue" ? "bg-accent-blue" : "bg-accent-amber";
-  const textColor = keycard === "red" ? "text-accent-red" : keycard === "blue" ? "text-accent-blue" : "text-accent-amber";
-  const label = keycard === "crypt" ? "Crypt" : keycard === "red" ? "Red" : "Blue";
-  return (
-    <p className="text-[10px] leading-tight flex items-center gap-1">
-      <span className="text-text-muted">{zoneName}</span>
-      <span className="text-text-muted">·</span>
-      <span className={`inline-block w-2 h-2 rounded-full ${color}`} />
-      <span className={textColor}>{label} Keycard</span>
-    </p>
-  );
-}
 
 /* ─── Intro ─── */
 

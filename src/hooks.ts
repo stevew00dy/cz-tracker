@@ -222,7 +222,7 @@ export function useShipTracker(key = "cz-ships") {
   return { ships, toggle, resetAll, claimed, total: ships.length };
 }
 
-export function useSimpleTimers(key: string, ids: string[]) {
+export function useSimpleTimers(key: string, _ids?: string[]) {
   const [endTimes, setEndTimes] = useState<Record<string, number | null>>(() => loadJson(key, {}));
   const [now, setNow] = useState(Date.now());
 
