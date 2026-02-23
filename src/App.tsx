@@ -223,30 +223,30 @@ function HangarSection({ compboards, hangar }: { compboards: ReturnType<typeof u
             >
               <Zap className="w-3.5 h-3.5" />
             </button>
-          </div>
 
-          {/* LEDs + cycle info */}
-          <div className="card py-4">
-            <div className="flex items-center justify-center gap-4 sm:gap-6 mb-3">
-              {[1, 2, 3, 4, 5].map((i) => {
-                const isLit = i <= ledsLit;
-                return (
-                  <div key={i} className="flex flex-col items-center gap-1.5">
-                    <div className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full transition-all duration-500 ${
-                      isLit
-                        ? "bg-accent-green shadow-lg shadow-accent-green/80 animate-glow-green"
-                        : "bg-dark-700 border border-dark-600"
-                    }`} />
-                    <span className={`text-[10px] font-medium ${isLit ? "text-accent-green" : "text-text-muted"}`}>
-                      {isLit ? "ON" : "OFF"}
-                    </span>
-                  </div>
-                );
-              })}
+            {/* LEDs */}
+            <div className="relative mt-4 pt-4 border-t border-dark-700/50">
+              <div className="flex items-center justify-center gap-4 sm:gap-6 mb-2">
+                {[1, 2, 3, 4, 5].map((i) => {
+                  const isLit = i <= ledsLit;
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1.5">
+                      <div className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full transition-all duration-500 ${
+                        isLit
+                          ? "bg-accent-green shadow-lg shadow-accent-green/80 animate-glow-green"
+                          : "bg-dark-700 border border-dark-600"
+                      }`} />
+                      <span className={`text-[10px] font-medium ${isLit ? "text-accent-green" : "text-text-muted"}`}>
+                        {isLit ? "ON" : "OFF"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-text-dim text-xs text-center">
+                185-minute cycle: <span className="text-accent-green font-semibold">Green (65 min open)</span> &rarr; <span className="text-accent-red font-semibold">Red (120 min closed)</span>
+              </p>
             </div>
-            <p className="text-text-dim text-xs text-center">
-              185-minute cycle: <span className="text-accent-green font-semibold">Green (65 min open)</span> &rarr; <span className="text-accent-red font-semibold">Red (120 min closed)</span>
-            </p>
           </div>
 
           {/* Vault Door */}
