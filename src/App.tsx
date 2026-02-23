@@ -103,7 +103,6 @@ function HangarSection({ compboards, hangar }: { compboards: ReturnType<typeof u
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-5 h-5 rounded-full bg-accent-amber/20 text-accent-amber text-[10px] font-black flex items-center justify-center shrink-0">{zs.step}</div>
                   <span className="text-xs font-semibold text-text-secondary">{ZONE_NAMES[zone]}</span>
-                  <span className="text-[10px] text-text-muted">· {zs.subtitle}</span>
                 </div>
                 {boards.filter((b) => b.zone === zone).map((b) => {
                   const rem = getRemaining(b.id);
