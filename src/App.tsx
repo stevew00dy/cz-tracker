@@ -498,14 +498,37 @@ export default function App() {
         <IntroSection stagesDone={stagesDone} execBlocked={compboards.collected === compboards.total && !hangar.isGreen} />
         <SupervisorSection supervisorCards={supervisorCards} />
         <HangarSection compboards={compboards} hangar={hangar} />
-        <ShipTracker />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ShipTracker />
+          <div className="card overflow-hidden p-0">
+            <div className="aspect-video">
+              <iframe
+                src="https://www.youtube.com/embed/vnkJymjOpf4"
+                title="Executive Hangar Guide"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full border-0"
+              />
+            </div>
+          </div>
+        </div>
         <MapsSection />
       </main>
 
-      <footer className="border-t border-dark-700 py-6 text-center">
-        <p className="text-xs text-text-muted">
-          Unofficial fan-made tool. Not affiliated with Cloud Imperium Games.
-        </p>
+      <footer className="border-t border-dark-700 py-6">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <a
+            href="https://undisputednoobs.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-text-muted hover:text-accent-amber transition-colors text-sm font-medium"
+          >
+            undisputednoobs.com
+          </a>
+          <p className="text-xs text-text-muted">
+            Unofficial fan-made tool. Not affiliated with Cloud Imperium Games.
+          </p>
+        </div>
       </footer>
     </div>
   );
