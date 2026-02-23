@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Zap,
   RotateCcw,
@@ -435,7 +436,7 @@ function MapsSection() {
         Maps by Terada (Checkmate, Orbituary, Ruin) and u/Kerast (Executive Hangar, Supervisor).
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {MAPS.map(({ id, title, credit }) => (
+        {MAPS.map(({ id, title }) => (
           <div
             key={id}
             className="card overflow-hidden p-0 cursor-pointer hover:border-accent-amber/30 transition-all"
