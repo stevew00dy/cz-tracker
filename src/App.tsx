@@ -6,7 +6,6 @@ import {
   Check,
   DoorOpen,
   Rocket,
-  Shield,
   Map,
 } from "lucide-react";
 import {
@@ -72,11 +71,109 @@ function HangarSection({ compboards, hangar }: { compboards: ReturnType<typeof u
   const { isGreen, remaining, progress, sync, ledsLit, changeAtStr } = hangar;
   const { boards, toggle, collected, total, resetAll, getRemaining, startTimer, resetTimer } = compboards;
 
+  const ZONE_STEPS: Record<string, { step: number; subtitle: string }> = {
+    checkmate: { step: 2, subtitle: "Hangar Area, Server Room, Red Door" },
+    orbituary: { step: 3, subtitle: "Storage Bay, Fuse & Blue Doors" },
+    ruin: { step: 4, subtitle: "The Crypt, Vault Door area" },
+  };
+
   return (
     <section className="space-y-4">
       <div style={{ display: "flex", gap: "1rem", alignItems: "stretch" }}>
-        {/* Left — Timer + LEDs + Sync */}
+        {/* Left — Compboard Checklist */}
+        <div style={{ flex: "1 1 50%", minWidth: 0 }} className="card flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider">Compboards</h3>
+            <div className="flex items-center gap-2">
+              <button onClick={() => { if (window.confirm("Reset all compboards?")) resetAll(); }} className="text-text-muted hover:text-accent-red text-[10px] flex items-center gap-1 transition-colors">
+                <RotateCcw className="w-2.5 h-2.5" /> Reset
+              </button>
+              <div className="text-right">
+                <span className={`font-mono text-xl font-black ${collected === total ? "text-accent-green" : "text-text"}`}>{collected}</span>
+                <span className="text-text-muted text-sm">/{total}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 space-y-4">
+            {(["checkmate", "orbituary", "ruin"] as const).map((zone) => {
+              const zs = ZONE_STEPS[zone];
+              return (
+              <div key={zone} className="space-y-1.5">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-5 h-5 rounded-full bg-accent-amber/20 text-accent-amber text-[10px] font-black flex items-center justify-center shrink-0">{zs.step}</div>
+                  <span className="text-xs font-semibold text-text-secondary">{ZONE_NAMES[zone]}</span>
+                  <span className="text-[10px] text-text-muted">· {zs.subtitle}</span>
+                </div>
+                {boards.filter((b) => b.zone === zone).map((b) => {
+                  const rem = getRemaining(b.id);
+                  const running = rem !== null && rem > 0;
+                  return (
+                <div
+                  key={b.id}
+                  onClick={() => toggle(b.id)}
+                  className={`w-full rounded-lg border ${b.collected ? "border-accent-green/30 bg-accent-green/5" : running ? "border-accent-blue/30 bg-accent-blue/5" : "border-dark-700 bg-dark-900/50"} px-4 py-3 flex flex-nowrap items-center transition-all duration-200 text-left hover:border-accent-green/50 cursor-pointer`}
+                  style={{ display: "grid", gridTemplateColumns: "2rem 1fr 1fr 1fr 5rem", alignItems: "center", gap: "0.5rem" }}
+                >
+                  <div className="w-7 h-7 rounded-full border-2 border-dark-600 flex items-center justify-center">
+                    {b.collected ? (
+                      <div className="w-6 h-6 rounded-full bg-accent-green flex items-center justify-center">
+                        <Check className="w-3.5 h-3.5 text-dark-950" />
+                      </div>
+                    ) : (
+                      <span className="text-xs font-bold text-text-muted">{b.id}</span>
+                    )}
+                  </div>
+                  <span className={`text-sm font-semibold ${b.collected ? "text-accent-green line-through opacity-60" : "text-text-secondary"}`}>
+                    {b.label}
+                  </span>
+                  <span className="text-sm text-text-muted">{ZONE_NAMES[b.zone]}</span>
+                  {b.keycard ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className={`inline-block w-2.5 h-2.5 rounded-full ${b.keycard === "red" ? "bg-accent-red" : b.keycard === "blue" ? "bg-accent-blue" : "bg-accent-amber"}`} />
+                      <span className={`text-sm ${b.keycard === "red" ? "text-accent-red" : b.keycard === "blue" ? "text-accent-blue" : "text-accent-amber"}`}>
+                        {b.keycard === "crypt" ? "Crypt" : b.keycard === "red" ? "Red" : "Blue"} Keycard
+                      </span>
+                    </span>
+                  ) : (
+                    <span />
+                  )}
+                  <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    {running ? (
+                      <>
+                        <span className="font-mono text-xs font-bold text-accent-blue">{formatTime(rem!)}</span>
+                        <button onClick={() => resetTimer(b.id)} className="text-text-muted hover:text-text-secondary transition-colors">
+                          <RotateCcw className="w-3 h-3" />
+                        </button>
+                      </>
+                    ) : (
+                      <button onClick={() => startTimer(b.id)} className="rounded px-2.5 py-1 bg-dark-700 hover:bg-dark-600 text-text-muted text-xs flex items-center gap-1 transition-colors">
+                        <Play className="w-3 h-3" /> Timer
+                      </button>
+                    )}
+                  </div>
+                </div>
+                  );
+                })}
+              </div>
+              );
+            })}
+          </div>
+
+        </div>
+
+        {/* Right — Timer + LEDs + Sync */}
         <div style={{ flex: "1 1 50%", minWidth: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
+
+          {/* Title */}
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-full bg-accent-amber/20 text-accent-amber text-xs font-black flex items-center justify-center shrink-0">5</div>
+            <div>
+              <h2 className="text-lg font-bold">Executive Hangar</h2>
+              <p className="text-xs text-text-dim">Wait for green phase, insert all 7 compboards, claim your ship.</p>
+            </div>
+          </div>
+
           {/* Phase Card */}
           <div className={`card border-2 ${isGreen ? "border-accent-green" : "border-accent-red"} text-center relative overflow-hidden`}>
             <div
@@ -156,80 +253,6 @@ function HangarSection({ compboards, hangar }: { compboards: ReturnType<typeof u
           <VaultDoorCard />
 
         </div>
-
-        {/* Right — Compboard Checklist */}
-        <div style={{ flex: "1 1 50%", minWidth: 0 }} className="card flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider">Compboards</h3>
-            <div className="flex items-center gap-2">
-              <button onClick={() => { if (window.confirm("Reset all compboards?")) resetAll(); }} className="text-text-muted hover:text-accent-red text-[10px] flex items-center gap-1 transition-colors">
-                <RotateCcw className="w-2.5 h-2.5" /> Reset
-              </button>
-              <div className="text-right">
-                <span className={`font-mono text-xl font-black ${collected === total ? "text-accent-green" : "text-text"}`}>{collected}</span>
-                <span className="text-text-muted text-sm">/{total}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 space-y-4">
-            {(["checkmate", "orbituary", "ruin"] as const).map((zone) => (
-              <div key={zone} className="space-y-1.5">
-                {boards.filter((b) => b.zone === zone).map((b) => {
-                  const rem = getRemaining(b.id);
-                  const running = rem !== null && rem > 0;
-                  return (
-                <div
-                  key={b.id}
-                  onClick={() => toggle(b.id)}
-                  className={`w-full rounded-lg border ${b.collected ? "border-accent-green/30 bg-accent-green/5" : running ? "border-accent-blue/30 bg-accent-blue/5" : "border-dark-700 bg-dark-900/50"} px-4 py-3 flex flex-nowrap items-center transition-all duration-200 text-left hover:border-accent-green/50 cursor-pointer`}
-                  style={{ display: "grid", gridTemplateColumns: "2rem 1fr 1fr 1fr 5rem", alignItems: "center", gap: "0.5rem" }}
-                >
-                  <div className="w-7 h-7 rounded-full border-2 border-dark-600 flex items-center justify-center">
-                    {b.collected ? (
-                      <div className="w-6 h-6 rounded-full bg-accent-green flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5 text-dark-950" />
-                      </div>
-                    ) : (
-                      <span className="text-xs font-bold text-text-muted">{b.id}</span>
-                    )}
-                  </div>
-                  <span className={`text-sm font-semibold ${b.collected ? "text-accent-green line-through opacity-60" : "text-text-secondary"}`}>
-                    {b.label}
-                  </span>
-                  <span className="text-sm text-text-muted">{ZONE_NAMES[b.zone]}</span>
-                  {b.keycard ? (
-                    <span className="flex items-center gap-1.5">
-                      <span className={`inline-block w-2.5 h-2.5 rounded-full ${b.keycard === "red" ? "bg-accent-red" : b.keycard === "blue" ? "bg-accent-blue" : "bg-accent-amber"}`} />
-                      <span className={`text-sm ${b.keycard === "red" ? "text-accent-red" : b.keycard === "blue" ? "text-accent-blue" : "text-accent-amber"}`}>
-                        {b.keycard === "crypt" ? "Crypt" : b.keycard === "red" ? "Red" : "Blue"} Keycard
-                      </span>
-                    </span>
-                  ) : (
-                    <span />
-                  )}
-                  <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                    {running ? (
-                      <>
-                        <span className="font-mono text-xs font-bold text-accent-blue">{formatTime(rem!)}</span>
-                        <button onClick={() => resetTimer(b.id)} className="text-text-muted hover:text-text-secondary transition-colors">
-                          <RotateCcw className="w-3 h-3" />
-                        </button>
-                      </>
-                    ) : (
-                      <button onClick={() => startTimer(b.id)} className="rounded px-2.5 py-1 bg-dark-700 hover:bg-dark-600 text-text-muted text-xs flex items-center gap-1 transition-colors">
-                        <Play className="w-3 h-3" /> Timer
-                      </button>
-                    )}
-                  </div>
-                </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-
-        </div>
       </div>
     </section>
   );
@@ -248,13 +271,13 @@ function SupervisorSection({ supervisorCards }: { supervisorCards: ReturnType<ty
 
   return (
     <section className="card">
-      <div className="flex items-center gap-2 mb-3">
-        <Shield className="w-5 h-5 text-accent-red" />
-        <h2 className="text-lg font-bold">Supervisor Red Keycards</h2>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-7 h-7 rounded-full bg-accent-amber/20 text-accent-amber text-xs font-black flex items-center justify-center shrink-0">1</div>
+        <div>
+          <h2 className="text-lg font-bold">Supervisor Red Keycards</h2>
+          <p className="text-xs text-text-dim">Visit Supervisor Outposts to print red keycards for locked areas.</p>
+        </div>
       </div>
-      <p className="text-sm text-text-dim mb-4">
-        You need a red keycard to access certain locked areas. These are found at Supervisor Outposts — not inside the contested zones.
-      </p>
       <div style={{ display: "flex", gap: "0.75rem" }}>
         {printers.map((p) => {
           const got = isCollected(p.id);
