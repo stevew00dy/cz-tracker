@@ -116,7 +116,7 @@ const BOARDS: Omit<CompBoard, "collected" | "timerEnd">[] = [
   { id: 1, label: "Board 1", location: "Hangar Area", zone: "checkmate", keycard: "red" },
   { id: 2, label: "Board 2", location: "Server Room", zone: "checkmate", keycard: "blue" },
   { id: 3, label: "Board 3", location: "Behind Red Door", zone: "checkmate", keycard: "blue" },
-  { id: 4, label: "Board 4", location: "Storage Bay", zone: "orbituary", keycard: "blue" },
+  { id: 4, label: "Board 4", location: "Storage Bay", zone: "orbituary", keycard: "red" },
   { id: 7, label: "Board 7", location: "Behind Fuse/Blue Doors", zone: "orbituary", keycard: "red" },
   { id: 5, label: "Board 5", location: "Crypt", zone: "ruin", keycard: "crypt" },
   { id: 6, label: "Board 6", location: "Vault (Timer Door)", zone: "ruin", keycard: null },
