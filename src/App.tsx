@@ -6,6 +6,7 @@ import {
   DoorOpen,
   Rocket,
   Shield,
+  Map,
 } from "lucide-react";
 import {
   useHangarTimer,
@@ -26,7 +27,7 @@ const STAGES = [
   { step: 2, title: "Checkmate", desc: "Contested zone — collect compboards from the Hangar Area, Server Room, and behind the Red Door." },
   { step: 3, title: "Orbituary", desc: "Contested zone — collect compboards from the Storage Bay and behind Fuse/Blue Doors." },
   { step: 4, title: "Ruin Station", desc: "Contested zone — collect compboards from the Crypt and behind the Vault (Timer Door)." },
-  { step: 5, title: "Exec Hanger", desc: "Wait for the green phase, then insert all 7 compboards into the terminal and claim your ship." },
+  { step: 5, title: "Executive Hangar", desc: "Wait for the green phase, then insert all 7 compboards into the terminal and claim your ship." },
 ];
 
 function IntroSection({ stagesDone, execBlocked }: { stagesDone: Record<number, boolean>; execBlocked: boolean }) {
@@ -34,7 +35,7 @@ function IntroSection({ stagesDone, execBlocked }: { stagesDone: Record<number, 
     <section className="card">
       <div className="text-center mb-4">
         <h2 className="text-lg font-bold mb-1">How It Works</h2>
-        <p className="text-xs text-text-muted">5 stages to claim a ship from the Executive Hanger</p>
+        <p className="text-xs text-text-muted">5 stages to claim a ship from the Executive Hangar</p>
       </div>
       <div className="flex gap-3">
         {STAGES.map((s) => {
@@ -410,6 +411,56 @@ function ShipTracker() {
   );
 }
 
+/* ─── Maps ─── */
+
+const MAPS = [
+  { id: "checkmate", title: "Checkmate", credit: "Terada" },
+  { id: "orbituary", title: "Orbituary", credit: "Terada" },
+  { id: "ruin", title: "Ruin Station", credit: "Terada" },
+  { id: "executive-hangar", title: "Executive Hangar", credit: "u/Kerast" },
+  { id: "supervisor", title: "Supervisor", credit: "u/Kerast" },
+] as const;
+
+function MapsSection() {
+  const base = import.meta.env.BASE_URL;
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Map className="w-5 h-5 text-accent-amber" />
+        <h2 className="text-lg font-bold">Zone Maps</h2>
+      </div>
+      <p className="text-xs text-text-muted">
+        Maps by Terada (Checkmate, Orbituary, Ruin) and u/Kerast (Executive Hangar, Supervisor). Source:{" "}
+        <a
+          href="https://contestedzonetimers.com/contested-zone-maps"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent-amber hover:underline"
+        >
+          contestedzonetimers.com
+        </a>
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {MAPS.map(({ id, title, credit }) => (
+          <div key={id} className="card overflow-hidden p-0">
+            <div className="aspect-[4/3] bg-dark-800 relative">
+              <img
+                src={`${base}maps/${id}.jpg`}
+                alt={title}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="px-4 py-2 border-t border-dark-700 flex items-center justify-between">
+              <span className="font-semibold text-sm">{title}</span>
+              <span className="text-[10px] text-text-muted">{credit}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /* ─── App ─── */
 
 export default function App() {
@@ -427,27 +478,20 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-50 bg-dark-950/80 backdrop-blur-md border-b border-dark-700">
-        <div className="max-w-7xl mx-auto px-4 flex items-center gap-2 h-12">
-          <Rocket className="w-5 h-5 text-accent-amber" />
-          <span className="font-bold text-sm tracking-wide">Pyro Timer</span>
-          <span className="text-[10px] text-text-muted hidden sm:inline">Star Citizen CZ Tracker</span>
-        </div>
-      </header>
-
       <main className="max-w-7xl mx-auto px-4 py-4 space-y-8">
         <div className="text-center">
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-2">
-            Exec Hanger - Pyro System
+            Executive Hangar
           </h1>
           <p className="text-text-muted text-xs tracking-wide uppercase">
-            PYAM-EXHANG Global Cycle &bull; Synchronized Across All Servers
+            Pyro System &bull; PYAM-EXHANG-0-1
           </p>
         </div>
         <IntroSection stagesDone={stagesDone} execBlocked={compboards.collected === compboards.total && !hangar.isGreen} />
         <SupervisorSection supervisorCards={supervisorCards} />
         <HangarSection compboards={compboards} hangar={hangar} />
         <ShipTracker />
+        <MapsSection />
       </main>
 
       <footer className="border-t border-dark-700 py-6 text-center">
