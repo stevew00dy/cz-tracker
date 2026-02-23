@@ -164,15 +164,6 @@ function HangarSection({ compboards, hangar }: { compboards: ReturnType<typeof u
         {/* Right — Timer + LEDs + Sync */}
         <div style={{ flex: "1 1 50%", minWidth: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
 
-          {/* Title */}
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-full bg-accent-amber/20 text-accent-amber text-xs font-black flex items-center justify-center shrink-0">5</div>
-            <div>
-              <h2 className="text-lg font-bold">Executive Hangar</h2>
-              <p className="text-xs text-text-dim">Wait for green phase, insert all 7 compboards, claim your ship.</p>
-            </div>
-          </div>
-
           {/* Phase Card */}
           <div className={`card border-2 ${isGreen ? "border-accent-green" : "border-accent-red"} text-center relative overflow-hidden`}>
             <div
@@ -184,6 +175,11 @@ function HangarSection({ compboards, hangar }: { compboards: ReturnType<typeof u
               }}
             />
             <div className="relative">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="w-6 h-6 rounded-full bg-accent-amber/20 text-accent-amber text-[10px] font-black flex items-center justify-center shrink-0">5</div>
+                <h2 className="text-sm font-bold">Executive Hangar</h2>
+                <span className="text-[10px] text-text-muted">· Insert compboards, claim your ship</span>
+              </div>
               <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3 ${isGreen ? "bg-accent-green/20 text-accent-green" : "bg-accent-red/20 text-accent-red"}`}>
                 <div className={`w-2.5 h-2.5 rounded-full ${isGreen ? "bg-accent-green animate-glow-green" : "bg-accent-red animate-glow-red"}`} />
                 {isGreen ? "GREEN PHASE — HANGAR OPEN" : "RED PHASE — HANGAR CLOSED"}
