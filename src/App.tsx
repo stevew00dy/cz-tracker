@@ -423,6 +423,8 @@ const MAPS = [
 
 function MapsSection() {
   const base = import.meta.env.BASE_URL;
+  const [open, setOpen] = React.useState<string | null>(null);
+
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-2">
@@ -430,19 +432,15 @@ function MapsSection() {
         <h2 className="text-lg font-bold">Zone Maps</h2>
       </div>
       <p className="text-xs text-text-muted">
-        Maps by Terada (Checkmate, Orbituary, Ruin) and u/Kerast (Executive Hangar, Supervisor). Source:{" "}
-        <a
-          href="https://contestedzonetimers.com/contested-zone-maps"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-accent-amber hover:underline"
-        >
-          contestedzonetimers.com
-        </a>
+        Maps by Terada (Checkmate, Orbituary, Ruin) and u/Kerast (Executive Hangar, Supervisor).
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {MAPS.map(({ id, title, credit }) => (
-          <div key={id} className="card overflow-hidden p-0">
+          <div
+            key={id}
+            className="card overflow-hidden p-0 cursor-pointer hover:border-accent-amber/30 transition-all"
+            onClick={() => setOpen(id)}
+          >
             <div className="aspect-[4/3] bg-dark-800 relative">
               <img
                 src={`${base}maps/${id}.webp`}
@@ -450,13 +448,22 @@ function MapsSection() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="px-4 py-2 border-t border-dark-700 flex items-center justify-between">
-              <span className="font-semibold text-sm">{title}</span>
-              <span className="text-[10px] text-text-muted">{credit}</span>
-            </div>
           </div>
         ))}
       </div>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setOpen(null)}
+        >
+          <img
+            src={`${base}maps/${open}.webp`}
+            alt={MAPS.find((m) => m.id === open)?.title}
+            className="max-w-full max-h-full object-contain"
+          />
+        </div>
+      )}
     </section>
   );
 }
