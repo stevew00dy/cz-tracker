@@ -445,7 +445,7 @@ function MapsSection() {
           <div key={id} className="card overflow-hidden p-0">
             <div className="aspect-[4/3] bg-dark-800 relative">
               <img
-                src={`${base}maps/${id}.jpg`}
+                src={`${base}maps/${id}.webp`}
                 alt={title}
                 className="w-full h-full object-contain"
               />
