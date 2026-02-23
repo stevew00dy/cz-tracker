@@ -521,9 +521,9 @@ export default function App() {
         <IntroSection stagesDone={stagesDone} execBlocked={compboards.collected === compboards.total && !hangar.isGreen} />
         <SupervisorSection supervisorCards={supervisorCards} />
         <HangarSection compboards={compboards} hangar={hangar} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ alignItems: "start" }}>
           <ShipTracker />
-          <div className="card overflow-hidden p-0">
+          <div className="rounded-xl overflow-hidden border border-dark-700">
             <div className="aspect-video">
               <iframe
                 src="https://www.youtube.com/embed/vnkJymjOpf4"
