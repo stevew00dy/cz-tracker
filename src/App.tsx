@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
 import {
   Zap,
@@ -10,6 +10,10 @@ import {
   Users,
   ExternalLink,
   X,
+  Settings,
+  Download,
+  Upload,
+  Crosshair,
 } from "lucide-react";
 import {
   useHangarTimer,
@@ -580,6 +584,189 @@ function MapsSection() {
   );
 }
 
+/* ─── Header ─── */
+
+const CZ_STORAGE_KEYS = [
+  "cz-hangar-sync", "cz-vault-sync", "cz-compboards",
+  "cz-ships", "cz-supervisor-collected", "cz-supervisor-timers",
+];
+
+function exportData() {
+  const data: Record<string, unknown> = { version: 1, exportedAt: new Date().toISOString() };
+  CZ_STORAGE_KEYS.forEach((key) => {
+    const raw = localStorage.getItem(key);
+    if (raw) data[key] = JSON.parse(raw);
+  });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `exec-hangar-tracker-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(file: File) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target?.result as string);
+      if (typeof data !== "object" || !data) throw new Error("bad format");
+      CZ_STORAGE_KEYS.forEach((key) => {
+        if (data[key] !== undefined) localStorage.setItem(key, JSON.stringify(data[key]));
+      });
+      window.location.reload();
+    } catch {
+      alert("Invalid backup file. Expected an Exec Hangar Tracker JSON export.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+function Header({ stagesCompleted, totalStages, onReset }: { stagesCompleted: number; totalStages: number; onReset: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const pct = totalStages > 0 ? Math.round((stagesCompleted / totalStages) * 100) : 0;
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setConfirming(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  return (
+    <header className="border-b border-dark-700 bg-dark-900/80 backdrop-blur-sm sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-accent-blue/20 flex items-center justify-center">
+            <Crosshair className="w-5 h-5 text-accent-blue" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold leading-tight">Executive Hangar Tracker</h1>
+            <p className="text-xs text-text-muted">Pyro System &bull; PYAM-EXHANG-0-1</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-accent-green" />
+              <span className="text-text-dim">
+                <span className="font-mono font-semibold text-accent-green">{stagesCompleted}</span>
+                <span className="text-text-muted">/{totalStages}</span> stages
+              </span>
+            </div>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <span className="font-mono font-semibold text-text-dim">{pct}%</span>
+              <div className="w-20 h-1.5 bg-dark-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-accent-green rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="relative" ref={panelRef}>
+            <button
+              onClick={() => { setOpen(!open); setConfirming(false); }}
+              className={`p-2 rounded-lg transition-all duration-200 ${
+                open ? "text-text bg-dark-700" : "text-text-muted hover:text-text hover:bg-dark-800"
+              }`}
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+
+            {open && (
+              <div className="absolute right-0 top-full mt-2 w-64 p-3 shadow-xl z-50 rounded-xl border border-dark-700 bg-dark-900">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-semibold text-text-dim uppercase tracking-wide">Settings</h3>
+                  <button
+                    onClick={() => { setOpen(false); setConfirming(false); }}
+                    className="p-0.5 rounded text-text-muted hover:text-text transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <button
+                    onClick={() => { exportData(); setOpen(false); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-text-dim hover:text-text hover:bg-dark-700 transition-all duration-200"
+                  >
+                    <Download className="w-3.5 h-3.5 text-accent-blue" />
+                    Export Progress
+                    <span className="ml-auto text-[10px] text-text-muted">.json</span>
+                  </button>
+
+                  <button
+                    onClick={() => fileRef.current?.click()}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-text-dim hover:text-text hover:bg-dark-700 transition-all duration-200"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-accent-amber" />
+                    Import Progress
+                    <span className="ml-auto text-[10px] text-text-muted">.json</span>
+                  </button>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) importData(file);
+                      e.target.value = "";
+                    }}
+                  />
+
+                  <div className="border-t border-dark-700 my-2" />
+
+                  {confirming ? (
+                    <div className="px-3 py-2">
+                      <p className="text-xs text-accent-red mb-2">Reset all progress? This cannot be undone.</p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { onReset(); setConfirming(false); setOpen(false); }}
+                          className="flex-1 py-1.5 text-xs rounded-md bg-accent-red/20 text-accent-red hover:bg-accent-red/30 transition-colors font-medium"
+                        >
+                          Yes, reset
+                        </button>
+                        <button
+                          onClick={() => setConfirming(false)}
+                          className="flex-1 py-1.5 text-xs rounded-md bg-dark-700 text-text-muted hover:text-text transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirming(true)}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition-all duration-200"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Reset All Progress
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 /* ─── App ─── */
 
 export default function App() {
@@ -595,17 +782,17 @@ export default function App() {
     5: compboards.collected === compboards.total && hangar.isGreen,
   };
 
+  const stagesCompleted = Object.values(stagesDone).filter(Boolean).length;
+
+  function handleReset() {
+    CZ_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+    window.location.reload();
+  }
+
   return (
     <div className="min-h-screen">
+      <Header stagesCompleted={stagesCompleted} totalStages={5} onReset={handleReset} />
       <main className="max-w-7xl mx-auto px-4 py-4 space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-2">
-            Executive Hangar Tracker
-          </h1>
-          <p className="text-text-muted text-xs tracking-wide uppercase">
-            Pyro System &bull; PYAM-EXHANG-0-1
-          </p>
-        </div>
         <IntroSection stagesDone={stagesDone} execBlocked={compboards.collected === compboards.total && !hangar.isGreen} />
         <SupervisorSection supervisorCards={supervisorCards} />
         <HangarSection compboards={compboards} hangar={hangar} />
