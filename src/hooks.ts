@@ -53,7 +53,7 @@ export function useHangarTimer(syncOffsetKey = "cz-hangar-sync") {
 
   // "Opens at" / "Closes at" clock time
   const changeAt = new Date(now + remaining);
-  const changeAtStr = changeAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const changeAtStr = changeAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" }) + " UTC";
 
   const sync = useCallback(() => {
     // When user clicks sync as hangar OPENS, we nudge so cyclePos = 0 right now
@@ -92,14 +92,16 @@ export function useVaultDoor(key = "cz-vault-sync") {
     saveJson(key, null);
   }, [key]);
 
-  if (!syncTime) return { isOpen: null, remaining: 0, sync, reset, synced: false };
+  if (!syncTime) return { isOpen: null, remaining: 0, progress: 0, phaseDuration: 0, sync, reset, synced: false };
 
   const elapsed = now - syncTime;
   const cyclePos = elapsed % VAULT_CYCLE_MS;
   const isOpen = cyclePos < VAULT_OPEN_MS;
+  const phaseDuration = isOpen ? VAULT_OPEN_MS : VAULT_CLOSED_MS;
   const remaining = isOpen ? VAULT_OPEN_MS - cyclePos : VAULT_CYCLE_MS - cyclePos;
+  const progress = 1 - remaining / phaseDuration;
 
-  return { isOpen, remaining, sync, reset, synced: true };
+  return { isOpen, remaining, progress, phaseDuration, sync, reset, synced: true };
 }
 
 export interface CompBoard {
@@ -107,18 +109,18 @@ export interface CompBoard {
   label: string;
   location: string;
   zone: "checkmate" | "orbituary" | "ruin";
-  keycard: "red" | "blue" | "crypt" | null;
+  keycard: ("red" | "blue" | "crypt")[] | null;
   collected: boolean;
   timerEnd: number | null;
 }
 
 const BOARDS: Omit<CompBoard, "collected" | "timerEnd">[] = [
-  { id: 1, label: "Board 1", location: "Hangar Area", zone: "checkmate", keycard: "red" },
-  { id: 2, label: "Board 2", location: "Server Room", zone: "checkmate", keycard: "blue" },
-  { id: 3, label: "Board 3", location: "Behind Red Door", zone: "checkmate", keycard: "blue" },
-  { id: 4, label: "Board 4", location: "Storage Bay", zone: "orbituary", keycard: "red" },
-  { id: 7, label: "Board 7", location: "Behind Fuse/Blue Doors", zone: "orbituary", keycard: "red" },
-  { id: 5, label: "Board 5", location: "Crypt", zone: "ruin", keycard: "crypt" },
+  { id: 1, label: "Board 1", location: "Hangar Area", zone: "checkmate", keycard: ["red"] },
+  { id: 2, label: "Board 2", location: "Server Room", zone: "checkmate", keycard: ["blue"] },
+  { id: 3, label: "Board 3", location: "Behind Red Door", zone: "checkmate", keycard: ["blue"] },
+  { id: 4, label: "Board 4", location: "Storage Bay", zone: "orbituary", keycard: ["red"] },
+  { id: 7, label: "Board 7", location: "Behind Fuse/Blue Doors", zone: "orbituary", keycard: ["red", "blue", "blue"] },
+  { id: 5, label: "Board 5", location: "Crypt", zone: "ruin", keycard: ["crypt"] },
   { id: 6, label: "Board 6", location: "Vault (Timer Door)", zone: "ruin", keycard: null },
 ];
 
@@ -149,7 +151,11 @@ export function useCompBoards(key = "cz-compboards") {
 
   const startTimer = useCallback((id: number) => {
     setBoards((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, timerEnd: Date.now() + 30 * 60 * 1000 } : b))
+      prev.map((b) => {
+        if (b.id !== id) return b;
+        const duration = b.keycard?.includes("blue") ? 15 * 60 * 1000 : 30 * 60 * 1000;
+        return { ...b, timerEnd: Date.now() + duration };
+      })
     );
   }, []);
 
@@ -241,6 +247,8 @@ export function useSimpleTimers(key: string, _ids?: string[]) {
     setEndTimes((prev) => ({ ...prev, [id]: null }));
   }, []);
 
+  const DURATION = 30 * 60 * 1000;
+
   const getRemaining = useCallback((id: string) => {
     const end = endTimes[id];
     if (!end) return null;
@@ -248,7 +256,13 @@ export function useSimpleTimers(key: string, _ids?: string[]) {
     return diff > 0 ? diff : 0;
   }, [endTimes, now]);
 
-  return { start, reset, getRemaining };
+  const getProgress = useCallback((id: string) => {
+    const rem = getRemaining(id);
+    if (rem === null || rem === 0) return 0;
+    return 1 - rem / DURATION;
+  }, [getRemaining]);
+
+  return { start, reset, getRemaining, getProgress };
 }
 
 export function useSupervisorCards(key = "cz-supervisor-collected") {

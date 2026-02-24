@@ -31,8 +31,11 @@ body {
 }
 
 * {
-  scrollbar-width: thin;
-  scrollbar-color: #303749 #1a1f2e;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 .card {
