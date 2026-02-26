@@ -645,38 +645,38 @@ function Header({ stagesCompleted, totalStages, onReset }: { stagesCompleted: nu
 
   return (
     <header className="border-b border-dark-700 bg-dark-900/80 backdrop-blur-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-accent-blue/20 flex items-center justify-center">
-            <Crosshair className="w-5 h-5 text-accent-blue" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold leading-tight">Executive Hangar Tracker</h1>
-            <p className="text-xs text-text-muted">Pyro System &bull; PYAM-EXHANG-0-1</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-accent-green" />
-              <span className="text-text-dim">
-                <span className="font-mono font-semibold text-accent-green">{stagesCompleted}</span>
-                <span className="text-text-muted">/{totalStages}</span> stages
-              </span>
+      <div className="max-w-[1600px] mx-auto px-4 py-4">
+        {/* Row 1: title + hamburger (hamburger right-aligned next to title on all sizes) */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-lg bg-accent-blue/20 flex items-center justify-center shrink-0">
+              <Crosshair className="w-5 h-5 text-accent-blue" />
             </div>
-            <div className="hidden sm:flex items-center gap-1.5">
-              <span className="font-mono font-semibold text-text-dim">{pct}%</span>
-              <div className="w-20 h-1.5 bg-dark-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-accent-green rounded-full transition-all duration-500"
-                  style={{ width: `${pct}%` }}
-                />
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold leading-tight">Executive Hangar Tracker</h1>
+              <p className="text-xs text-text-muted">Pyro System &bull; PYAM-EXHANG-0-1</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-6 shrink-0">
+            <div className="hidden sm:flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-accent-green" />
+                <span className="text-text-dim">
+                  <span className="font-mono font-semibold text-accent-green">{stagesCompleted}</span>
+                  <span className="text-text-muted">/{totalStages}</span> stages
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono font-semibold text-text-dim">{pct}%</span>
+                <div className="w-20 h-1.5 bg-dark-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-accent-green rounded-full transition-all duration-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="relative" ref={navRef}>
+            <div className="relative" ref={navRef}>
             <button
               onClick={() => { setNavOpen(!navOpen); setConfirming(false); }}
               className={`p-2 rounded-lg transition-all duration-200 ${
@@ -772,7 +772,16 @@ function Header({ stagesCompleted, totalStages, onReset }: { stagesCompleted: nu
                 </a>
               </div>
             )}
+            </div>
           </div>
+        </div>
+        {/* Row 2 (mobile): progress */}
+        <div className="flex sm:hidden items-center gap-1.5 text-xs mt-2">
+          <span className="w-2 h-2 rounded-full bg-accent-green shrink-0" />
+          <span className="text-text-dim">
+            <span className="font-mono font-semibold text-accent-green">{stagesCompleted}</span>
+            <span className="text-text-muted">/{totalStages}</span> stages
+          </span>
         </div>
       </div>
     </header>
@@ -804,7 +813,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <Header stagesCompleted={stagesCompleted} totalStages={5} onReset={handleReset} />
-      <main className="max-w-7xl mx-auto px-4 py-4 space-y-8">
+      <main className="max-w-[1600px] mx-auto px-4 py-4 space-y-8">
         <IntroSection stagesDone={stagesDone} execBlocked={compboards.collected === compboards.total && !hangar.isGreen} />
         <SupervisorSection supervisorCards={supervisorCards} />
         <HangarSection compboards={compboards} hangar={hangar} />
