@@ -15,6 +15,7 @@ import {
   Crosshair,
   Home,
   Menu,
+  Maximize2,
 } from "lucide-react";
 import {
   useHangarTimer,
@@ -403,58 +404,98 @@ function SupervisorSection({ supervisorCards }: { supervisorCards: ReturnType<ty
 
 function VaultDoorCard() {
   const vault = useVaultDoor();
+  const [fullscreen, setFullscreen] = useState(false);
   const barColor = vault.isOpen ? "bg-accent-green" : "bg-accent-red";
 
   return (
-    <div className="card">
-      <div className="flex items-center gap-3 mb-3 flex-wrap">
-        <div className="min-w-0">
-          <h2 className="text-lg font-bold">Ruin Station — Vault Door</h2>
-          <p className="text-xs text-text-dim">Opens 1 min, closed 20 min (repeating cycle).</p>
+    <>
+      <div className="card">
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold">Ruin Station — Vault Door</h2>
+            <p className="text-xs text-text-dim">Opens 1 min, closed 20 min (repeating cycle).</p>
+          </div>
+          {vault.synced && (
+            <div className="flex items-center gap-2 ml-auto shrink-0">
+              <span
+                className={`font-mono text-4xl font-bold tabular-nums ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}
+                aria-label={`Time remaining: ${formatTime(vault.remaining)}`}
+              >
+                {formatTime(vault.remaining)}
+              </span>
+              <button onClick={() => setFullscreen(true)} className="text-text-muted hover:text-accent-amber transition-colors p-1" aria-label="Open timer full screen">
+                <Maximize2 className="w-4 h-4" />
+              </button>
+              <button onClick={vault.reset} className="text-text-muted hover:text-text-secondary transition-colors p-1" aria-label="Reset vault sync">
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
-        {vault.synced && (
-          <div className="flex items-center gap-2 ml-auto shrink-0">
-            <span
-              className={`font-mono text-4xl font-bold tabular-nums ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}
-              aria-label={`Time remaining: ${formatTime(vault.remaining)}`}
+        {vault.synced ? (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className={`font-mono text-xl font-bold ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}>
+                {vault.isOpen ? "OPEN" : "CLOSED"}
+              </span>
+            </div>
+            <div className="w-full h-2 rounded-full bg-dark-700 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-300 ${barColor}`}
+                style={{ width: `${(1 - vault.progress) * 100}%` }}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-accent-amber font-mono text-xl font-bold">UNKNOWN</span>
+              <span className="text-[10px] text-text-muted">Click when you see the vault door open.</span>
+            </div>
+            <button
+              onClick={vault.sync}
+              className="rounded-lg px-3 py-1.5 bg-accent-amber/10 border border-amber-500/30 text-accent-amber text-xs font-semibold hover:bg-accent-amber/20 transition-all shrink-0"
             >
-              {formatTime(vault.remaining)}
-            </span>
-            <button onClick={vault.reset} className="text-text-muted hover:text-text-secondary transition-colors p-1" aria-label="Reset vault sync">
-              <RotateCcw className="w-3.5 h-3.5" />
+              Door Opened Now
             </button>
           </div>
         )}
       </div>
-      {vault.synced ? (
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className={`font-mono text-xl font-bold ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}>
-              {vault.isOpen ? "OPEN" : "CLOSED"}
-            </span>
-          </div>
-          <div className="w-full h-2 rounded-full bg-dark-700 overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${barColor}`}
-              style={{ width: `${(1 - vault.progress) * 100}%` }}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-accent-amber font-mono text-xl font-bold">UNKNOWN</span>
-            <span className="text-[10px] text-text-muted">Click when you see the vault door open.</span>
-          </div>
+
+      {fullscreen && vault.synced && ReactDOM.createPortal(
+        <div
+          className="fixed inset-0 z-50 bg-dark-950/95 backdrop-blur-sm flex flex-col items-center justify-center p-6"
+          onClick={() => setFullscreen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Vault timer full screen"
+        >
           <button
-            onClick={vault.sync}
-            className="rounded-lg px-3 py-1.5 bg-accent-amber/10 border border-amber-500/30 text-accent-amber text-xs font-semibold hover:bg-accent-amber/20 transition-all shrink-0"
+            onClick={() => setFullscreen(false)}
+            className="absolute top-4 right-4 p-2 rounded-lg text-text-muted hover:text-text hover:bg-dark-800 transition-colors"
+            aria-label="Close"
           >
-            Door Opened Now
+            <X className="w-6 h-6" />
           </button>
-        </div>
+          <div className="text-center" onClick={(e) => e.stopPropagation()}>
+            <p className="text-sm text-text-muted mb-2">Ruin Station — Vault Door</p>
+            <p className={`font-mono text-8xl font-bold tabular-nums ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}>
+              {formatTime(vault.remaining)}
+            </p>
+            <p className={`font-mono text-2xl font-bold mt-2 ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}>
+              {vault.isOpen ? "OPEN" : "CLOSED"}
+            </p>
+            <div className="mt-6 max-w-md w-full h-3 rounded-full bg-dark-700 overflow-hidden mx-auto">
+              <div
+                className={`h-full rounded-full transition-all duration-300 ${barColor}`}
+                style={{ width: `${(1 - vault.progress) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 }
 
