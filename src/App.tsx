@@ -407,26 +407,31 @@ function VaultDoorCard() {
 
   return (
     <div className="card">
-      <div className="flex items-center gap-3 mb-3">
-        <div>
+      <div className="flex items-center gap-3 mb-3 flex-wrap">
+        <div className="min-w-0">
           <h2 className="text-lg font-bold">Ruin Station — Vault Door</h2>
           <p className="text-xs text-text-dim">Opens 1 min, closed 20 min (repeating cycle).</p>
         </div>
         {vault.synced && (
-          <button onClick={vault.reset} className="text-text-muted hover:text-text-secondary transition-colors ml-auto shrink-0">
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-2 ml-auto shrink-0">
+            <span
+              className={`font-mono text-4xl font-bold tabular-nums ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}
+              aria-label={`Time remaining: ${formatTime(vault.remaining)}`}
+            >
+              {formatTime(vault.remaining)}
+            </span>
+            <button onClick={vault.reset} className="text-text-muted hover:text-text-secondary transition-colors p-1" aria-label="Reset vault sync">
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         )}
       </div>
       {vault.synced ? (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <span className={`font-mono text-xl font-bold ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}>
-                {vault.isOpen ? "OPEN" : "CLOSED"}
-              </span>
-            </div>
-            <span className="text-text-dim font-mono text-sm">{formatTime(vault.remaining)}</span>
+            <span className={`font-mono text-xl font-bold ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}>
+              {vault.isOpen ? "OPEN" : "CLOSED"}
+            </span>
           </div>
           <div className="w-full h-2 rounded-full bg-dark-700 overflow-hidden">
             <div
