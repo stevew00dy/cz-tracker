@@ -417,6 +417,12 @@ function VaultDoorCard() {
           </div>
           {vault.synced && (
             <div className="flex items-center gap-2 ml-auto shrink-0">
+              <button
+                onClick={vault.sync}
+                className="rounded-lg px-2.5 py-1 bg-accent-amber/10 border border-amber-500/30 text-accent-amber text-xs font-semibold hover:bg-accent-amber/20 transition-all shrink-0"
+              >
+                Door Opened Now
+              </button>
               <span
                 className={`font-mono text-4xl font-bold tabular-nums ${vault.isOpen ? "text-accent-green" : "text-accent-red"}`}
                 aria-label={`Time remaining: ${formatTime(vault.remaining)}`}
@@ -425,9 +431,6 @@ function VaultDoorCard() {
               </span>
               <button onClick={() => setFullscreen(true)} className="text-text-muted hover:text-accent-amber transition-colors p-1" aria-label="Open timer full screen">
                 <Maximize2 className="w-4 h-4" />
-              </button>
-              <button onClick={vault.reset} className="text-text-muted hover:text-text-secondary transition-colors p-1" aria-label="Reset vault sync">
-                <RotateCcw className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
@@ -491,6 +494,12 @@ function VaultDoorCard() {
                 style={{ width: `${(1 - vault.progress) * 100}%` }}
               />
             </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); vault.sync(); }}
+              className="mt-6 text-xs text-text-muted hover:text-accent-amber transition-colors"
+            >
+              Door Opened Now
+            </button>
           </div>
         </div>,
         document.body
